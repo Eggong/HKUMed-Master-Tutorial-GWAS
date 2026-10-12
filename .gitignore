@@ -1,0 +1,27 @@
+# Teaching data and downloaded upstream materials
+Data/
+Results/
+upstream/
+
+# Common local data directories
+**/Data/
+**/Results/
+
+# Genotype datasets
+*.bed
+*.bim
+*.fam
+*.ped
+*.map
+*.pgen
+*.pvar
+*.psam
+
+# Local R files
+.Rhistory
+.RData
+.Rproj.user/
+
+# Generated website
+_site/
+.jekyll-cache/
