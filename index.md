@@ -45,16 +45,6 @@ See [References](#9-references).
 
 <div class="warning" markdown="1">
 
-**About the teaching data**
-
-The original tutorial uses HapMap genotypes with a simulated binary
-phenotype. Associations from this exercise must not be presented as
-discoveries about an actual disease.
-
-This course covers GWAS only. Polygenic risk scoring is not included.
-
-</div>
-
 ### 1.1 Learning outcomes
 
 By the end of this practical, you should be able to:
@@ -99,7 +89,7 @@ the workflow.
 
 ### 2.2 Course files
 
-Your instructor will provide a working directory with this structure:
+This tutorial will provide a working directory with this structure:
 
 ```text
 Course_Materials/
