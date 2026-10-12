@@ -1,0 +1,191 @@
+# Instructor preparation
+
+## Status
+
+This website is a teaching adaptation, not a verbatim copy of the
+original scripts.
+
+Test the entire practical using the exact teaching files and software
+versions before publishing it for students.
+
+The course contains no PRS lesson.
+
+## 1. Download the upstream material
+
+```bash
+mkdir -p upstream
+git clone https://github.com/MareesAT/GWA_tutorial.git upstream/GWA_tutorial
+
+git -C upstream/GWA_tutorial rev-parse HEAD \
+  > upstream/repository_commit.txt
+
+cd upstream/GWA_tutorial
+
+unzip 1_QC_GWAS.zip
+unzip 2_Population_stratification.zip
+unzip 3_Association_GWAS.zip
+```
+
+Inspect and test the main scripts before class.
+
+Do not assume that historical external download addresses still work.
+
+## 2. Prepare the classroom input
+
+Create:
+
+```text
+Course_Materials/
+├── Data/raw/
+├── Data/review/
+├── Results/
+└── scripts/
+```
+
+From the first original module, identify the unfiltered binary dataset
+that includes the intended simulated case/control phenotype.
+
+Do not substitute the final QC output for the initial dataset:
+students are expected to perform the filtering exercises themselves.
+
+Export the chosen input with the standardized prefix:
+
+```bash
+plink \
+  --bfile /actual/path/to/verified_input_prefix \
+  --make-bed \
+  --out /actual/path/to/Course_Materials/Data/raw/study
+```
+
+Verify:
+
+- Dataset provenance.
+- Phenotype coding.
+- Sample identifiers.
+- Variant identifiers.
+- Chromosome coding.
+- Genome build.
+- Presence and treatment of sex-chromosome markers.
+
+Record these details in a data manifest distributed with the course.
+
+The paths above are placeholders that must be replaced.
+
+## 3. Prepare sample-review material
+
+Run the classroom variant-filtering steps before preparing review lists.
+
+Use the original module's sample-QC procedures, including the necessary
+sex-chromosome preparation.
+
+Prepare:
+
+- Sex-chromosome diagnostic results.
+- Heterozygosity diagnostics.
+- Relatedness diagnostics.
+- Written reasons for exclusions or retention.
+
+Create:
+
+```text
+Data/review/qc_exclusions.txt
+Data/review/review_notes.tsv
+```
+
+The exclusion file must contain two whitespace-separated columns,
+FID and IID, without a header.
+
+Use an empty file if no exclusion is justified.
+
+Suggested review-notes columns:
+
+```text
+FID IID diagnostic evidence decision reason
+```
+
+These are reviewed classroom decisions, not fabricated examples.
+
+For a more advanced class, have students propose decisions before
+revealing the instructor list.
+
+## 4. Prepare the population-structure component
+
+Test the original second module with its reference data.
+
+Verify genome-build and allele compatibility before merging.
+
+Prepare a reference-based plot with clearly identified study and
+reference samples.
+
+Document the marker set and all harmonization decisions.
+
+Create:
+
+```text
+Data/review/population_exclusions.txt
+```
+
+Use the same two-column, no-header format.
+
+If no exclusions are justified, distribute an empty file.
+
+The main classroom association dataset must contain only retained study
+participants, not reference individuals.
+
+## 5. Decide how students access the reference exercise
+
+Choose one:
+
+### Full practical
+
+Students execute the tested reference workflow in the original second
+module before returning to Section 5.3 of the website.
+
+Distribute a version-specific command sheet with verified paths.
+
+### Short practical
+
+Provide the reference plot, selected diagnostic outputs, and review
+notes. Students interpret the evidence without downloading and merging
+the complete reference data during class.
+
+State clearly which version the class is using.
+
+## 6. Validate the complete lesson
+
+Run every completed exercise from a clean working directory.
+
+Check:
+
+- All referenced input files exist.
+- Identifier fields remain unchanged.
+- Cases and controls remain after filtering.
+- Covariates match the retained samples.
+- MDS dimensions can be calculated.
+- Adjusted and unadjusted models use comparable samples.
+- Failed regressions are identified.
+- All plots are generated.
+- Empty exclusion lists are handled correctly.
+
+Save expected sample and variant counts for your exact course release.
+
+Do not invent expected association hits: use the output of the tested
+teaching dataset.
+
+## 7. Public repository content
+
+Publish:
+
+- Lesson text.
+- Website configuration.
+- Original teaching scripts.
+- Non-sensitive illustrative figures, where permitted.
+- Dataset provenance and access instructions.
+
+Keep working genotype data, sample-level reports, and upstream
+downloads outside the public teaching repository unless redistribution
+is explicitly appropriate and permitted.
+
+Retain attribution for third-party materials. Check their terms before
+redistributing them; do not assume your repository's license applies
+to upstream content.
