@@ -1,0 +1,12 @@
+title: "Introduction to genome-wide association studies"
+description: "A practical course in genotype quality control and association analysis"
+
+markdown: kramdown
+kramdown:
+  input: GFM
+
+exclude:
+  - instructor.md
+  - Data
+  - Results
+  - upstream
