@@ -1249,7 +1249,7 @@ Submit:
 **Final question:** Which conclusions are supported by this practical,
 and which would require additional data or a different study design?
 
-## 9 References
+## References
 
 ### Scientific background
 
@@ -1259,7 +1259,12 @@ Quality control and statistical analysis.*
 International Journal of Methods in Psychiatric Research, 27, e1608.
 
 - [Paper](https://doi.org/10.1002/mpr.1608)
-- [Original teaching repository](https://github.com/MareesAT/GWA_tutorial/)
+- [Paper](https://www.nature.com/articles/s43586-021-00056-9)
+- [Paper](https://pmc.ncbi.nlm.nih.gov/articles/PMC1950838/)
+- [Source](https://github.com/MareesAT/GWA_tutorial/)
+- [Source](https://cloufield.github.io/GWASTutorial/)
+- [Source](https://pbreheny.github.io/adv-gwas-tutorial/index.html)
+- [Source](https://gwaslab.org)
 
 ### Software documentation
 
@@ -1270,9 +1275,3 @@ International Journal of Methods in Psychiatric Research, 27, e1608.
 - [PLINK LD pruning](https://www.cog-genomics.org/plink/1.9/ld)
 - [PLINK population structure](https://www.cog-genomics.org/plink/1.9/strat)
 - [PLINK association analysis](https://www.cog-genomics.org/plink/1.9/assoc)
-
-### Teaching format
-
-The numbered explanations, practical exercises, and expandable answers
-were inspired by the supplied Cambridge single-cell training example.
-The GWAS lesson text and exercises are a new teaching adaptation.
