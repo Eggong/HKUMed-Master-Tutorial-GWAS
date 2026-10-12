@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>{{ page.title | default: site.title | escape }}</title>
+
+  <link rel="stylesheet"
+        href="{{ '/assets/style.css' | relative_url }}">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="{{ '/' | relative_url }}">
+        GWAS practical
+      </a>
+      <p>Master’s-level bioinformatics training</p>
+    </div>
+  </header>
+
+  <main class="container">
+    {{ content }}
+  </main>
+
+  <footer class="container site-footer">
+    <p>
+      Teaching adaptation based on Marees et al. (2018)
+      and the accompanying GWA_tutorial repository.
+    </p>
+  </footer>
+</body>
+</html>
