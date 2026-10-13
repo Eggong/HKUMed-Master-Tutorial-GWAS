@@ -87,37 +87,8 @@ the workflow.
 
 </div>
 
-### 2.2 Course files
 
-This tutorial will provide a working directory with this structure:
-
-```text
-Course_Materials/
-├── Data/
-│   ├── raw/
-│   │   ├── study.bed
-│   │   ├── study.bim
-│   │   └── study.fam
-│   └── review/
-│       ├── qc_exclusions.txt
-│       ├── population_exclusions.txt
-│       └── review_notes.tsv
-├── Results/
-└── scripts/
-```
-
-The `study` files contain the teaching genotypes and phenotype.
-
-The review files document instructor-reviewed decisions about sample
-quality and the analysis population. They are provided because these
-decisions require interpretation, not just a numerical threshold.
-
-Both exclusion files contain two columns, `FID` and `IID`, without a
-header. If no exclusions are justified, the corresponding file is empty.
-
-The review notes explain the evidence behind the decisions.
-
-### 2.3 Working directory
+### 2.2 Working directory
 
 Open a terminal and move into `Course_Materials`.
 
@@ -129,7 +100,7 @@ cd /path/to/Course_Materials
 mkdir -p Results scripts
 
 pwd
-ls Data/raw
+ls -la
 ```
 
 Replace `/path/to/Course_Materials` with the real location.
@@ -146,9 +117,9 @@ Save R scripts in the same folder and run them with:
 Rscript scripts/your_script.R
 ```
 
-### 2.4 Keep an analysis notebook
+### 2.3 Keep an analysis notebook
 
-For each step, record:
+For each step, suggest to record:
 
 - Input prefix.
 - Command or script.
@@ -158,7 +129,7 @@ For each step, record:
 - Warnings.
 - Reason for any exclusion.
 
-Do not overwrite the original data.
+Do not overwrite the original data!!!
 
 ## 3 Understanding PLINK files
 
