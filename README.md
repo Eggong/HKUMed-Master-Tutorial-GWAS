@@ -16,9 +16,11 @@ No advanced prior experience in statistical genetics is required, but basic fami
 
 ## Suggested duration
 
-The tutorial is designed for approximately:
+The tutorial includes three sections:
 
-**Three practical sessions**
+**Preprocessing genotyping data**
+**Identifying population structure**
+**Performing genome-wide association analysis (GWA) and interpreting results**
 
 ## Software requirements
 
