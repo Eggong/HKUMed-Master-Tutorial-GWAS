@@ -30,6 +30,12 @@ Participants are expected to use the following software:
 
 Depending on the teaching environment, these tools may be available on a local computer, remote server, or teaching cluster.
 
+## Data download
+
+The data for this tutorial is available here:
+
+https://connecthkuhk-my.sharepoint.com/:f:/g/personal/u3010549_connect_hku_hk/IgAygcDTSahXSL01QoaOeUcqAZK40hpGsgEMZHl4Mvy3U2k?e=bTAT4w
+
 ## View the tutorial
 
 The tutorial website is available here:
