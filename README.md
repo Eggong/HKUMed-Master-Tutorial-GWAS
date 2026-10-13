@@ -18,9 +18,9 @@ No advanced prior experience in statistical genetics is required, but basic fami
 
 The tutorial includes three sections:
 
-**Preprocessing genotyping data**
-**Identifying population structure**
-**Performing genome-wide association analysis (GWA) and interpreting results**
+- **Preprocessing genotyping data**
+- **Identifying population structure**
+- **Performing genome-wide association analysis (GWA) and interpreting results**
 
 ## Software requirements
 
