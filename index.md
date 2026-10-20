@@ -7,7 +7,8 @@ title: "Introduction to genome-wide association studies"
 
 ### Genotype quality control, population structure, and association testing
 
-**Suggested duration:** 1.5 - 2 hours 
+**Suggested duration:** 1.5 - 2 hours
+
 **Software:** PLINK 1.9, R, and a Bash terminal
 
 ## Contents
@@ -870,8 +871,6 @@ Rscript scripts/03_mds_elbow.R
 ```
 
 Inspect Results/mds_elbow.pdf.
-
-<div class="note" markdown="1">
 
 </div>
 
