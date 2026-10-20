@@ -166,8 +166,7 @@ For the binary phenotype in this practical:
 - `2` means case.
 - `0` and `-9` indicate missing phenotype values.
 
-These are PLINK input codes, not the mathematical coding used when
-writing a logistic regression equation.
+These are PLINK input codes, not the mathematical coding used when writing a logistic regression equation.
 
 <div class="exercise" markdown="1">
 
@@ -219,12 +218,9 @@ The numerical answers depend on the prepared teaching dataset.
 
 Quality control involves both measurements and decisions.
 
-For example, we can measure missingness automatically, but deciding
-whether to exclude a sample may require considering several pieces
-of evidence.
+For example, we can measure missingness automatically, but deciding whether to exclude a sample may require considering several pieces of evidence.
 
-The thresholds below are classroom choices. They are not a universal
-recipe for every GWAS.
+The thresholds below are classroom choices. They are not a universal recipe for every GWAS.
 
 ### 4.1 Missing genotype calls
 
@@ -276,13 +272,13 @@ Complete:
 #!/usr/bin/env bash
 set -euo pipefail
 
-plink \
+./plink \
   --bfile Data/raw/study \
   --geno <<THRESHOLD>> \
   --make-bed \
   --out Results/01_variant_missingness
 
-plink \
+./plink \
   --bfile Results/01_variant_missingness \
   --mind <<THRESHOLD>> \
   --make-bed \
@@ -309,13 +305,13 @@ PLINK expects a proportion: 2% is written as `0.02`.
 #!/usr/bin/env bash
 set -euo pipefail
 
-plink \
+./plink \
   --bfile Data/raw/study \
   --geno 0.02 \
   --make-bed \
   --out Results/01_variant_missingness
 
-plink \
+./plink \
   --bfile Results/01_variant_missingness \
   --mind 0.02 \
   --make-bed \
@@ -348,7 +344,7 @@ common allele at a biallelic variant.
 Calculate allele frequencies:
 
 ```bash
-plink \
+./plink \
   --bfile Results/02_missingness \
   --freq \
   --out Results/allele_frequency
@@ -363,7 +359,7 @@ head Results/allele_frequency.frq
 For this small teaching dataset, retain variants with MAF of at least 5%:
 
 ```bash
-plink \
+./plink \
   --bfile Results/02_missingness \
   --maf 0.05 \
   --make-bed \
@@ -416,7 +412,7 @@ p², 2pq, q²
 Generate a diagnostic report:
 
 ```bash
-plink \
+./plink \
   --bfile Results/03_maf \
   --hardy \
   --out Results/hwe
@@ -425,7 +421,7 @@ plink \
 For the classroom filtering exercise:
 
 ```bash
-plink \
+./plink \
   --bfile Results/03_maf \
   --hwe 1e-6 \
   --make-bed \
@@ -458,14 +454,14 @@ instructor alongside your own diagnostic output.
 
 #### 4.4.1 Sex-chromosome consistency
 
-Check for sex discrepancy.
+Check for gender discrepancy.
 
 Subjects who were a priori determined as females are expected to have an X-chromosome inbreeding coefficient, \(F\), of less than 0.2. Subjects who were a priori determined as males are expected to have an \(F\) value greater than 0.8. This \(F\) value is based on the X-chromosome inbreeding, or homozygosity, estimate.
 
 Subjects who do not meet these criteria are flagged as `PROBLEM` by PLINK.
 
 ```bash
-plink \
+./plink \
   --bfile Results/04_variant_qc \
   --check-sex \
   --out Results/sex_check
@@ -496,7 +492,7 @@ In this classroom workflow, individuals flagged as `PROBLEM` are removed to gene
 
 <div class="exercise" markdown="1">
 
-**EXERCISE 4 — Remove individuals with sex discrepancy**
+**EXERCISE 4 — Remove individuals with gender discrepancy**
 
 Generate a list of individuals with the `PROBLEM` status:
 
@@ -507,7 +503,7 @@ grep "PROBLEM" Results/sex_check.sexcheck | awk '{print $1, $2}' > Results/sex_d
 Remove those individuals and create a new binary PLINK fileset:
 
 ```bash
-plink \
+./plink \
   --bfile Results/04_variant_qc \
   --remove Results/sex_discrepancy.txt \
   --make-bed \
@@ -537,13 +533,14 @@ wc -l Results/05_sexcheck.bim
 
 #### 4.4.2 LD pruning
 
-Nearby variants can carry correlated genotype information.
+In genetics, LD occurs when alleles at nearby loci are inherited together more often than expected by chance. If two SNPs are strongly correlated, they provide largely redundant information. LD pruning keeps a subset of relatively independent variants.
 
-We will create a reduced marker set for heterozygosity, relatedness,
-and population-structure calculations:
+LD pruning means reducing a set of genetic variants by removing SNPs that are highly correlated due to linkage disequilibrium, or LD.
+
+We will create a reduced marker set for heterozygosity, relatedness, and population-structure calculations:
 
 ```bash
-plink \
+./plink \
   --bfile Results/04_variant_qc \
   --autosome \
   --indep-pairwise 50 5 0.2 \
@@ -570,11 +567,14 @@ association analysis.
 </div>
 
 #### 4.4.3 Heterozygosity
+Heterozygosity is an individual-level quality-control metric used to identify samples with unusually high or low levels of heterozygous genotypes. In diploid organisms, a genotype is heterozygous when the two alleles at a locus differ. Across many SNPs, each individual is expected to have a broadly similar heterozygosity rate, assuming comparable ancestry and good genotype quality.
+
+Unusual heterozygosity can indicate sample or data problems.
 
 Generate a heterozygosity report:
 
 ```bash
-plink \
+./plink \
   --bfile Results/04_variant_qc \
   --autosome \
   --extract Results/qc_pruning.prune.in \
@@ -612,10 +612,14 @@ Compare unusual observations with the instructor’s review notes.
 
 #### 4.4.4 Relatedness
 
+Relatedness is used to identify pairs or groups of individuals who are genetically more similar than expected for unrelated samples. In many genome-wide association studies and population genetic analyses, the assumption is that individuals are unrelated. If close relatives are included without accounting for relatedness, test statistics can become inflated and association results may be biased.
+
+Relatedness checks are therefore commonly used to detect duplicate samples, monozygotic twins, parent–offspring pairs, siblings, and other close relatives.
+
 Estimate identity by descent using the pruned markers:
 
 ```bash
-plink \
+./plink \
   --bfile Results/04_variant_qc \
   --autosome \
   --extract Results/qc_pruning.prune.in \
@@ -672,13 +676,13 @@ Use the reviewed exclusion list:
 
 ```bash
 if [ -s Data/review/qc_exclusions.txt ]; then
-  plink \
+  ./plink \
     --bfile Results/04_variant_qc \
     --remove Data/review/qc_exclusions.txt \
     --make-bed \
     --out Results/05_sample_qc
 else
-  plink \
+  ./plink \
     --bfile Results/04_variant_qc \
     --make-bed \
     --out Results/05_sample_qc
@@ -709,73 +713,24 @@ population differences rather than an effect on the phenotype.
 
 We will investigate structure in two ways:
 
-1. Review the reference-based analysis.
+1. Examine population structure using a PCA-like approach.
 2. Calculate covariates within the retained study sample.
 
-### 5.2 Reference-based analysis
 
-The second module of the original repository uses 1000 Genomes
-reference data.
+### 5.2 Define the analysis sample
 
-Your instructor will provide the reference-based plot and the
-corresponding analysis notes, or guide you through
-`2_Main_script_MDS.txt`.
-
-Before combining reference and study data, check:
-
-- Genome build.
-- Variant positions and identifiers.
-- Allele compatibility.
-- Sample identifiers.
-- The marker set used for the analysis.
-
-Do not resolve merge failures by indiscriminately flipping alleles.
-
-<div class="exercise" markdown="1">
-
-**EXERCISE 5 — Interpret the reference plot**
-
-Using the reference-based plot, answer:
-
-1. Where do study samples lie relative to the reference samples?
-2. Are any samples unusual?
-3. Does the plot alone justify excluding them?
-4. How would exclusion change the population addressed by the study?
-
-Compare your interpretation with `review_notes.tsv`.
-
-</div>
-
-<details markdown="1">
-<summary>Answer</summary>
-
-A strong answer describes the observed pattern before proposing a
-decision.
-
-Exclusions should follow the study’s analysis plan and supporting
-evidence. A sample should not be labelled poor quality merely because
-it has a different ancestry profile.
-
-Reference individuals are used here to interpret structure; they must
-not be added as extra controls.
-
-</details>
-
-### 5.3 Define the analysis sample
-
-Apply only the reviewed population exclusions and restrict this
-introductory association analysis to autosomes:
+Apply only the reviewed population exclusions and restrict this introductory association analysis to autosomes:
 
 ```bash
 if [ -s Data/review/population_exclusions.txt ]; then
-  plink \
+  ./plink \
     --bfile Results/05_sample_qc \
     --remove Data/review/population_exclusions.txt \
     --autosome \
     --make-bed \
     --out Results/06_analysis
 else
-  plink \
+  ./plink \
     --bfile Results/05_sample_qc \
     --autosome \
     --make-bed \
@@ -787,13 +742,12 @@ This is a study-only dataset.
 
 ### 5.4 Calculate MDS dimensions
 
-We will use multidimensional scaling, or MDS, to summarize structure
-within the retained study samples.
+We will use multidimensional scaling (MDS), which is widely used to summarize genetic similarity among individuals and to visualize population structure, to examine structure within the retained study samples. In GWAS quality control, MDS dimensions are often calculated from genome-wide identity-by-state or genetic distance estimates and used to identify ancestry outliers or as covariates in association analyses.
 
 Recalculate the pruned marker set:
 
 ```bash
-plink \
+./plink \
   --bfile Results/06_analysis \
   --indep-pairwise 50 5 0.2 \
   --out Results/structure_pruning
@@ -802,7 +756,7 @@ plink \
 Calculate ten dimensions:
 
 ```bash
-plink \
+./plink \
   --bfile Results/06_analysis \
   --extract Results/structure_pruning.prune.in \
   --cluster \
@@ -810,8 +764,7 @@ plink \
   --out Results/structure
 ```
 
-MDS and principal component analysis are related approaches to
-dimension reduction, but they are not identical procedures.
+MDS and principal component analysis (PCA) are related approaches to dimension reduction, but they are not identical procedures. Briefly speaking, MDS starts from a distance or dissimilarity matrix between individuals and finds low-dimensional coordinates that preserve those distances, whereas PCA starts from the original genotype or feature matrix and finds axes that explain the greatest variance in the data.
 
 ### 5.5 Plot the dimensions and prepare covariates
 
@@ -864,9 +817,61 @@ Inspect `Results/structure.pdf`.
 
 Ten dimensions are a classroom choice, not a universal recommendation.
 
-As a sensitivity exercise, compare models using two, five, and ten
-dimensions. Consider sample size and model stability as well as changes
-in the results.
+As a sensitivity exercise, compare models using two, five, and ten dimensions. Consider sample size and model stability as well as changes in the results.
+
+**Using an elbow plot**
+
+An elbow plot can help choose the number of dimensions to retain. Plot the variance explained, eigenvalues, or another measure of information captured by each MDS dimension. The point where the curve begins to flatten, often called the “elbow,” suggests that additional dimensions contribute relatively little extra information.
+
+In practice, the elbow plot should be used as a guide rather than a strict rule. If the elbow occurs around dimension \(k\), consider using approximately \(k\) dimensions and compare results with nearby choices, such as \(k - 1\) and \(k + 1\), to assess sensitivity.
+
+Create `scripts/03_mds_elbow.R`:
+
+```r
+mds <- read.table(
+  "Results/structure.mds",
+  header = TRUE,
+  colClasses = c(FID = "character", IID = "character")
+)
+
+dimensions <- grep("^C[0-9]+$", names(mds), value = TRUE)
+
+# Calculate the variance of each MDS dimension
+dimension_variance <- apply(
+  mds[, dimensions],
+  2,
+  var,
+  na.rm = TRUE
+)
+
+elbow <- data.frame(
+  dimension = seq_along(dimension_variance),
+  variance = dimension_variance,
+  proportion = dimension_variance / sum(dimension_variance)
+)
+
+pdf("Results/mds_elbow.pdf")
+plot(
+  elbow$dimension,
+  elbow$proportion,
+  type = "b",
+  pch = 19,
+  xlab = "MDS dimension",
+  ylab = "Proportion of variance",
+  main = "Elbow plot for MDS dimensions"
+)
+dev.off()
+```
+
+Run:
+
+```bash
+Rscript scripts/03_mds_elbow.R
+```
+
+Inspect Results/mds_elbow.pdf.
+
+<div class="note" markdown="1">
 
 </div>
 
@@ -874,7 +879,7 @@ in the results.
 
 ### 6.1 The model
 
-For the binary teaching phenotype, we will use logistic regression.
+After preparing phenotype, genotype, and covariate files, run association testing using logistic regression. Logistic regression is appropriate when the phenotype is binary, such as case/control disease status.
 
 Each variant is tested using an additive allele-count model:
 
@@ -894,6 +899,8 @@ copy of that allele, conditional on the model covariates.
 
 ### 6.2 Unadjusted analysis
 
+First, run an unadjusted association analysis without population-structure covariates. This provides a baseline result that can be compared with the adjusted analysis.
+
 Run:
 
 ```bash
@@ -904,9 +911,13 @@ plink \
   --out Results/gwas_unadjusted
 ```
 
-This model does not include the MDS covariates.
+The unadjusted analysis tests the association between each SNP and case/control status without accounting for ancestry or other covariates.
+
+This analysis is useful as a comparison, but it should not usually be treated as the final result because population structure, sex, age, batch effects, or other confounders may inflate or bias associations.
 
 ### 6.3 Structure-adjusted analysis
+
+Next, run a structure-adjusted association analysis using the MDS dimensions as covariates. This helps account for population structure within the study sample.
 
 <div class="exercise" markdown="1">
 
@@ -914,7 +925,7 @@ This model does not include the MDS covariates.
 
 Create `scripts/03_association.sh`.
 
-Use the study dataset and the covariates generated in Section 5.
+Use the study dataset and the covariates generated in Section 5. In this example, we use the top ten dimensions as covariates. However, you are encouraged to vary the number of dimensions and compare the results to examine how adjustment for population structure affects the GWAS analysis.
 
 Complete:
 
@@ -964,8 +975,7 @@ Run:
 bash scripts/03_association.sh
 ```
 
-`hide-covar` hides covariate-specific result rows. It does not remove
-covariates from the model.
+`hide-covar` hides covariate-specific result rows. It does not remove covariates from the model.
 
 </details>
 
@@ -1038,13 +1048,11 @@ We will compare:
 - A dataset-specific Bonferroni threshold: `0.05 / number of tests`.
 - The conventional common-variant GWAS reference line: `5e-8`.
 
-The second is a reference convention, not a threshold derived from the
-number of variants in this small teaching dataset.
+The second is a reference convention, not a threshold derived from the number of variants in this small teaching dataset.
 
 ### 7.2 Manhattan and Q–Q plots
 
-The following R code uses base R and does not require additional
-plotting packages.
+The following R code uses base R and does not require additional plotting packages.
 
 Create `scripts/04_plots.R`:
 
@@ -1168,9 +1176,7 @@ Rscript scripts/04_plots.R
 
 The script reports how many additive tests were omitted from plotting.
 
-Investigate missing p-values, numerical zeros, and model warnings.
-A plot containing only valid results is not evidence that every model
-fitted successfully.
+Investigate missing p-values, numerical zeros, and model warnings. A plot containing only valid results is not evidence that every model fitted successfully.
 
 </div>
 
@@ -1183,13 +1189,11 @@ The Manhattan plot shows:
 
 Inspect the most prominent regions.
 
-Do not assume that several nearby significant variants represent
-several independent discoveries.
+Do not assume that several nearby significant variants represent several independent discoveries.
 
 ### 7.4 Interpreting the Q–Q plot
 
-The Q–Q plot compares observed p-values with the distribution expected
-under the null.
+The Q–Q plot compares observed p-values with the distribution expected under the null.
 
 Use it as a diagnostic rather than a pass/fail certificate.
 
@@ -1228,16 +1232,13 @@ Answer:
 
 There is no fixed numerical answer.
 
-Adjustment does not have to increase every p-value, and it may have
-little visible effect in this teaching dataset.
+Adjustment does not have to increase every p-value, and it may have little visible effect in this teaching dataset.
 
-A good interpretation compares effect estimates, uncertainty, sample
-counts, and diagnostics rather than declaring one analysis better
-because it produces more significant results.
+A good interpretation compares effect estimates, uncertainty, sample counts, and diagnostics rather than declaring one analysis better because it produces more significant results.
 
 </details>
 
-## 8 Outputs and submission
+## 8 Expected outputs
 
 Your output directory should now contain:
 
@@ -1254,19 +1255,6 @@ Your output directory should now contain:
 | `gwas_adjusted_manhattan.pdf` | Manhattan plot |
 | `gwas_adjusted_qq.pdf` | Q–Q plot |
 
-Submit:
-
-1. Your analysis scripts.
-2. A table of sample and variant counts at each QC stage.
-3. A short justification of reviewed exclusions.
-4. The population-structure plot.
-5. Adjusted and unadjusted association plots.
-6. A results table with tested alleles and effect estimates.
-7. A short discussion of limitations.
-8. Software versions and the teaching-data provenance record.
-
-**Final question:** Which conclusions are supported by this practical,
-and which would require additional data or a different study design?
 
 ## References
 
