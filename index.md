@@ -7,8 +7,7 @@ title: "Introduction to genome-wide association studies"
 
 ### Genotype quality control, population structure, and association testing
 
-**Audience:** Master’s students  
-**Suggested duration:** Three practical sessions  
+**Suggested duration:** 1.5 - 2 hours 
 **Software:** PLINK 1.9, R, and a Bash terminal
 
 ## Contents
@@ -70,20 +69,21 @@ The classroom environment should already contain:
 Check the installed programs:
 
 ```bash
-plink --version
+./plink
+./plink --version
+Rscript
 Rscript --version
 ```
 
-Record the output in your analysis notebook.
+Please record the output in your analysis notebook.
 
 <div class="note" markdown="1">
 
 **Which version of PLINK?**
 
-The commands in this practical are written for PLINK 1.9.
+The commands in this practical are written for PLINK 1.9 (https://www.cog-genomics.org/plink/1.9/).
 
-Do not replace `plink` with `plink2` without adapting and checking
-the workflow.
+Do not replace `plink` with `plink2` without adapting and checking the workflow.
 
 </div>
 
@@ -105,17 +105,7 @@ ls -la
 
 Replace `/path/to/Course_Materials` with the real location.
 
-Save shell scripts in `scripts/` and run them with:
-
-```bash
-bash scripts/your_script.sh
-```
-
-Save R scripts in the same folder and run them with:
-
-```bash
-Rscript scripts/your_script.R
-```
+Save shell scripts in `scripts/` and outputs in `Results/`.
 
 ### 2.3 Keep an analysis notebook
 
@@ -154,9 +144,8 @@ head Data/raw/study.fam
 
 PLINK reads the three files together using their shared prefix:
 
-```bash
-plink --bfile Data/raw/study
-```
+./plink --bfile Data/raw/study
+
 
 ### 3.2 The sample information file
 
@@ -239,15 +228,15 @@ recipe for every GWAS.
 
 ### 4.1 Missing genotype calls
 
-Missingness can be measured for:
+Missingness can be assessed at two levels:
 
-- **Samples:** the proportion of variants without a genotype call.
-- **Variants:** the proportion of samples without a genotype call.
+- **Sample-level missingness:** the proportion of variants with missing genotype calls for each sample.
+- **Variant-level missingness:** the proportion of samples with missing genotype calls for each variant.
 
 Generate both reports:
 
 ```bash
-plink \
+./plink \
   --bfile Data/raw/study \
   --missing \
   --out Results/missingness
@@ -275,6 +264,8 @@ The `F_MISS` column contains the fraction of missing calls.
 **EXERCISE 2 — Apply missingness filters**
 
 Create `scripts/01_missingness.sh`.
+
+We will use a stringent threshold for illustration, however in real-world cases, you may try multiple threshold settings.
 
 First exclude variants with more than 2% missing calls.
 Then exclude samples with more than 2% missing calls.
@@ -464,18 +455,85 @@ We will now examine three additional areas:
 For these steps, use the evidence and review notes supplied by the
 instructor alongside your own diagnostic output.
 
+
 #### 4.4.1 Sex-chromosome consistency
 
-The original tutorial includes a sex-chromosome check.
+Check for sex discrepancy.
 
-Before running such a check, chromosome coding and
-pseudoautosomal-region handling must be appropriate for the genome
-build and dataset.
+Subjects who were a priori determined as females are expected to have an X-chromosome inbreeding coefficient, \(F\), of less than 0.2. Subjects who were a priori determined as males are expected to have an \(F\) value greater than 0.8. This \(F\) value is based on the X-chromosome inbreeding, or homozygosity, estimate.
 
-Review the instructor-provided results from the original workflow.
+Subjects who do not meet these criteria are flagged as `PROBLEM` by PLINK.
 
-A flag requires investigation. It does not automatically justify removing
-an individual and should not be described as a test of gender identity.
+```bash
+plink \
+  --bfile Results/04_variant_qc \
+  --check-sex \
+  --out Results/sex_check
+```
+
+The main output is:
+
+| Output | Contents |
+|---|---|
+| `Results/sex_check.sexcheck` | Sex-check results for each sample |
+| `Results/sex_check.log` | Record of the PLINK run |
+
+Inspect the output:
+
+```bash
+head Results/sex_check.sexcheck
+```
+
+<div class="note" markdown="1">
+
+**Important**
+
+A sex-discrepancy flag requires investigation. It does not automatically justify removing an individual.
+
+In this classroom workflow, individuals flagged as `PROBLEM` are removed to generate the next binary PLINK fileset, `Results/05_sexcheck`.
+
+</div>
+
+<div class="exercise" markdown="1">
+
+**EXERCISE 4 — Remove individuals with sex discrepancy**
+
+Generate a list of individuals with the `PROBLEM` status:
+
+```bash
+grep "PROBLEM" Results/sex_check.sexcheck | awk '{print $1, $2}' > Results/sex_discrepancy.txt
+```
+
+Remove those individuals and create a new binary PLINK fileset:
+
+```bash
+plink \
+  --bfile Results/04_variant_qc \
+  --remove Results/sex_discrepancy.txt \
+  --make-bed \
+  --out Results/05_sexcheck
+```
+
+This command creates:
+
+| Output | Contents |
+|---|---|
+| `Results/05_sexcheck.bed` | Filtered binary genotype data |
+| `Results/05_sexcheck.bim` | Filtered variant information |
+| `Results/05_sexcheck.fam` | Filtered sample information |
+| `Results/05_sexcheck.log` | Record of the PLINK run |
+
+After running the command, record the number of retained samples and variants.
+
+</div>
+
+Check the resulting fileset:
+
+```bash
+wc -l Results/05_sexcheck.fam
+wc -l Results/05_sexcheck.bim
+```
+
 
 #### 4.4.2 LD pruning
 
