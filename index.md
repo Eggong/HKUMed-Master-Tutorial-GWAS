@@ -870,7 +870,7 @@ Run:
 Rscript scripts/03_mds_elbow.R
 ```
 
-Inspect Results/mds_elbow.pdf.
+Inspect `Results/mds_elbow.pdf`.
 
 </div>
 
