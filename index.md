@@ -221,7 +221,7 @@ Quality control involves both measurements and decisions.
 
 For example, we can measure missingness automatically, but deciding whether to exclude a sample may require considering several pieces of evidence.
 
-The thresholds below are classroom choices. They are not a universal recipe for every GWAS.
+The thresholds below are choices for this tutorial. They are not a universal recipe for every GWAS.
 
 ### 4.1 Missing genotype calls
 
@@ -357,7 +357,7 @@ Inspect the report:
 head Results/allele_frequency.frq
 ```
 
-For this small teaching dataset, retain variants with MAF of at least 5%:
+For this teaching dataset, retain variants with MAF of at least 5%:
 
 ```bash
 ./plink \
@@ -401,7 +401,7 @@ estimate, particularly after dividing individuals into cases and controls.
 
 </details>
 
-### 4.3 Hardy–Weinberg equilibrium
+### 4.3 Hardy–Weinberg equilibrium (HWE)
 
 For a biallelic variant with allele frequencies \(p\) and \(q\),
 Hardy–Weinberg equilibrium gives expected genotype frequencies:
@@ -487,7 +487,7 @@ head Results/sex_check.sexcheck
 
 A sex-discrepancy flag requires investigation. It does not automatically justify removing an individual.
 
-In this classroom workflow, individuals flagged as `PROBLEM` are removed to generate the next binary PLINK fileset, `Results/05_sexcheck`.
+In this tutorial, individuals flagged as `PROBLEM` are removed to generate the next binary PLINK fileset, `Results/05_sexcheck`.
 
 </div>
 
@@ -538,11 +538,11 @@ In genetics, LD occurs when alleles at nearby loci are inherited together more o
 
 LD pruning means reducing a set of genetic variants by removing SNPs that are highly correlated due to linkage disequilibrium, or LD.
 
-We will create a reduced marker set for heterozygosity, relatedness, and population-structure calculations:
+We will next create a reduced marker set for heterozygosity, relatedness, and population-structure calculations:
 
 ```bash
 ./plink \
-  --bfile Results/04_variant_qc \
+  --bfile Results/05_sexcheck \
   --autosome \
   --indep-pairwise 50 5 0.2 \
   --out Results/qc_pruning
@@ -576,7 +576,7 @@ Generate a heterozygosity report:
 
 ```bash
 ./plink \
-  --bfile Results/04_variant_qc \
+  --bfile Results/05_sexcheck \
   --autosome \
   --extract Results/qc_pruning.prune.in \
   --het \
@@ -609,7 +609,7 @@ hist(
 dev.off()
 ```
 
-Compare unusual observations with the instructor’s review notes.
+This plot shows the distribution of observed heterozygosity across individuals in a GWAS QC step.
 
 #### 4.4.4 Relatedness
 
@@ -621,7 +621,7 @@ Estimate identity by descent using the pruned markers:
 
 ```bash
 ./plink \
-  --bfile Results/04_variant_qc \
+  --bfile Results/05_sexcheck \
   --autosome \
   --extract Results/qc_pruning.prune.in \
   --genome \
@@ -678,15 +678,15 @@ Use the reviewed exclusion list:
 ```bash
 if [ -s Data/review/qc_exclusions.txt ]; then
   ./plink \
-    --bfile Results/04_variant_qc \
+    --bfile Results/05_sexcheck \
     --remove Data/review/qc_exclusions.txt \
     --make-bed \
-    --out Results/05_sample_qc
+    --out Results/06_sample_qc
 else
   ./plink \
-    --bfile Results/04_variant_qc \
+    --bfile Results/05_sexcheck \
     --make-bed \
-    --out Results/05_sample_qc
+    --out Results/06_sample_qc
 fi
 ```
 
@@ -725,21 +725,19 @@ Apply only the reviewed population exclusions and restrict this introductory ass
 ```bash
 if [ -s Data/review/population_exclusions.txt ]; then
   ./plink \
-    --bfile Results/05_sample_qc \
+    --bfile Results/06_sample_qc \
     --remove Data/review/population_exclusions.txt \
     --autosome \
     --make-bed \
-    --out Results/06_analysis
+    --out Results/07_analysis
 else
   ./plink \
-    --bfile Results/05_sample_qc \
+    --bfile Results/06_sample_qc \
     --autosome \
     --make-bed \
-    --out Results/06_analysis
+    --out Results/07_analysis
 fi
 ```
-
-This is a study-only dataset.
 
 ### 5.4 Calculate MDS dimensions
 
@@ -749,19 +747,19 @@ Recalculate the pruned marker set:
 
 ```bash
 ./plink \
-  --bfile Results/06_analysis \
+  --bfile Results/07_analysis \
   --indep-pairwise 50 5 0.2 \
   --out Results/structure_pruning
 ```
 
-Calculate ten dimensions:
+Calculate 50 dimensions:
 
 ```bash
 ./plink \
-  --bfile Results/06_analysis \
+  --bfile Results/07_analysis \
   --extract Results/structure_pruning.prune.in \
   --cluster \
-  --mds-plot 10 \
+  --mds-plot 50 \
   --out Results/structure
 ```
 
@@ -769,7 +767,7 @@ MDS and principal component analysis (PCA) are related approaches to dimension r
 
 ### 5.5 Plot the dimensions and prepare covariates
 
-Create `scripts/02_structure.R`:
+Create `scripts/02_structure.R` and run:
 
 ```r
 mds <- read.table(
@@ -804,12 +802,6 @@ write.table(
 )
 ```
 
-Run:
-
-```bash
-Rscript scripts/02_structure.R
-```
-
 Inspect `Results/structure.pdf`.
 
 <div class="note" markdown="1">
@@ -826,7 +818,7 @@ An elbow plot can help choose the number of dimensions to retain. Plot the varia
 
 In practice, the elbow plot should be used as a guide rather than a strict rule. If the elbow occurs around dimension \(k\), consider using approximately \(k\) dimensions and compare results with nearby choices, such as \(k - 1\) and \(k + 1\), to assess sensitivity.
 
-Create `scripts/03_mds_elbow.R`:
+Create `scripts/03_mds_elbow.R` and run:
 
 ```r
 mds <- read.table(
@@ -864,12 +856,6 @@ plot(
 dev.off()
 ```
 
-Run:
-
-```bash
-Rscript scripts/03_mds_elbow.R
-```
-
 Inspect `Results/mds_elbow.pdf`.
 
 </div>
@@ -903,8 +889,8 @@ First, run an unadjusted association analysis without population-structure covar
 Run:
 
 ```bash
-plink \
-  --bfile Results/06_analysis \
+./plink \
+  --bfile Results/07_analysis \
   --logistic hide-covar \
   --ci 0.95 \
   --out Results/gwas_unadjusted
@@ -922,17 +908,12 @@ Next, run a structure-adjusted association analysis using the MDS dimensions as 
 
 **EXERCISE 6 — Add population-structure covariates**
 
-Create `scripts/03_association.sh`.
-
 Use the study dataset and the covariates generated in Section 5. In this example, we use the top ten dimensions as covariates. However, you are encouraged to vary the number of dimensions and compare the results to examine how adjustment for population structure affects the GWAS analysis.
 
 Complete:
 
 ```bash
-#!/usr/bin/env bash
-set -euo pipefail
-
-plink \
+./plink \
   --bfile <<DATASET_PREFIX>> \
   --covar <<COVARIATE_FILE>> \
   --covar-name C1,C2,C3,C4,C5,C6,C7,C8,C9,C10 \
@@ -955,23 +936,16 @@ PLINK matches covariates to genotypes using `FID` and `IID`.
 <details markdown="1">
 <summary>Answer</summary>
 
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
+Run:
 
-plink \
-  --bfile Results/06_analysis \
+```bash
+./plink \
+  --bfile Results/07_analysis \
   --covar Results/covariates.tsv \
   --covar-name C1,C2,C3,C4,C5,C6,C7,C8,C9,C10 \
   --logistic hide-covar \
   --ci 0.95 \
   --out Results/gwas_adjusted
-```
-
-Run:
-
-```bash
-bash scripts/03_association.sh
 ```
 
 `hide-covar` hides covariate-specific result rows. It does not remove covariates from the model.
@@ -1053,61 +1027,61 @@ The second is a reference convention, not a threshold derived from the number of
 
 The following R code uses base R and does not require additional plotting packages.
 
-Create `scripts/04_plots.R`:
+Create `scripts/04_plots.R` and run:
 
 ```r
 plot_gwas <- function(prefix) {
-
+  
   result <- read.table(
     paste0(prefix, ".assoc.logistic"),
     header = TRUE,
     stringsAsFactors = FALSE
   )
-
+  
   additive <- subset(result, TEST == "ADD")
-
+  
   valid <- with(
     additive,
     is.finite(P) & P > 0 & P <= 1
   )
-
+  
   message("Additive tests: ", nrow(additive))
   message("Tests omitted from plots: ", sum(!valid))
-
+  
   gwas <- additive[valid, ]
-
+  
   if (nrow(gwas) == 0) {
     stop("No valid p-values available.")
   }
-
+  
   gwas <- gwas[order(gwas$CHR, gwas$BP), ]
-
+  
   chromosomes <- sort(unique(gwas$CHR))
-
+  
   offset <- 0
   ticks <- numeric(length(chromosomes))
   gwas$cumulative_position <- NA_real_
-
+  
   for (j in seq_along(chromosomes)) {
     chr <- chromosomes[j]
     selected <- gwas$CHR == chr
-
+    
     gwas$cumulative_position[selected] <-
       gwas$BP[selected] + offset
-
+    
     ticks[j] <- mean(
       range(gwas$cumulative_position[selected])
     )
-
+    
     offset <- offset + max(gwas$BP[selected])
   }
-
+  
   colours <- c("#176b87", "#75a9ba")[
     1 + match(gwas$CHR, chromosomes) %% 2
   ]
-
+  
   pdf(paste0(prefix, "_manhattan.pdf"), width = 11, height = 5)
-
+  
   plot(
     gwas$cumulative_position,
     -log10(gwas$P),
@@ -1119,17 +1093,17 @@ plot_gwas <- function(prefix) {
     ylab = expression(-log[10](p)),
     main = "Genome-wide association results"
   )
-
+  
   axis(1, at = ticks, labels = chromosomes)
   abline(h = -log10(5e-8), col = "red", lty = 2)
-
+  
   dev.off()
-
+  
   observed <- -log10(sort(gwas$P))
   expected <- -log10(ppoints(nrow(gwas)))
-
+  
   pdf(paste0(prefix, "_qq.pdf"), width = 6, height = 6)
-
+  
   plot(
     expected,
     observed,
@@ -1137,13 +1111,23 @@ plot_gwas <- function(prefix) {
     cex = 0.6,
     xlab = expression(Expected~~-log[10](p)),
     ylab = expression(Observed~~-log[10](p)),
-    main = "Q–Q plot"
+    main = "Q-Q plot"
   )
-
+  
   abline(0, 1, col = "red", lty = 2)
-
+  
   dev.off()
-
+  
+  ## Calculate lambda GC
+  chisq <- qchisq(
+    p = 1 - gwas$P,
+    df = 1
+  )
+  
+  lambda_gc <- median(chisq, na.rm = TRUE) / qchisq(0.5, df = 1)
+  
+  message("Lambda GC: ", lambda_gc)
+  
   write.table(
     head(gwas[order(gwas$P), ], 10),
     paste0(prefix, "_top10.tsv"),
@@ -1151,7 +1135,20 @@ plot_gwas <- function(prefix) {
     row.names = FALSE,
     sep = "\t"
   )
-
+  
+  write.table(
+    data.frame(
+      prefix = prefix,
+      n_valid_tests = nrow(gwas),
+      lambda_gc = lambda_gc,
+      bonferroni_threshold = 0.05 / nrow(gwas)
+    ),
+    paste0(prefix, "_summary.tsv"),
+    quote = FALSE,
+    row.names = FALSE,
+    sep = "\t"
+  )
+  
   message("Valid tests plotted: ", nrow(gwas))
   message(
     "Bonferroni threshold for these valid tests: ",
@@ -1161,12 +1158,6 @@ plot_gwas <- function(prefix) {
 
 plot_gwas("Results/gwas_unadjusted")
 plot_gwas("Results/gwas_adjusted")
-```
-
-Run:
-
-```bash
-Rscript scripts/04_plots.R
 ```
 
 <div class="warning" markdown="1">
