@@ -27,7 +27,7 @@ The tutorial includes three sections:
 Participants are expected to use the following software:
 
 - **PLINK 1.9**
-- **R**
+- **R and RStudio**
 - **Bash terminal**
 
 Depending on the teaching environment, these tools may be available on a local computer, remote server, or teaching cluster.
