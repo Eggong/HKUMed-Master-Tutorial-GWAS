@@ -7,7 +7,7 @@ title: "Introduction to genome-wide association studies"
 
 ### Genotype quality control, population structure, and association testing
 
-**Suggested duration:** 1.5 - 2 hours
+**Suggested duration:** 2 hours
 
 **Software:** PLINK 1.9, R, and a Bash terminal
 
@@ -19,7 +19,7 @@ title: "Introduction to genome-wide association studies"
 
 ## 1 Introduction
 
-A genome-wide association study, or GWAS, tests whether genetic
+A genome-wide association study (GWAS) tests whether genetic
 variants are associated with a phenotype.
 
 For a binary phenotype, we might ask whether a genetic variant is
@@ -72,8 +72,6 @@ Check the installed programs:
 ```bash
 ./plink
 ./plink --version
-Rscript
-Rscript --version
 ```
 
 Please record the output in your analysis notebook.
@@ -104,7 +102,7 @@ pwd
 ls -la
 ```
 
-Replace `/path/to/Course_Materials` with the real location.
+You need to replace `/path/to/Course_Materials` with the real location.
 
 Save shell scripts in `scripts/` and outputs in `Results/`.
 
@@ -188,8 +186,6 @@ wc -l <<VARIANT_FILE>>
 awk '{print $6}' <<SAMPLE_FILE>> | sort | uniq -c
 ```
 
-Write the results in your notebook.
-
 </div>
 
 <details markdown="1">
@@ -210,8 +206,6 @@ wc -l Data/raw/study.bim
 
 awk '{print $6}' Data/raw/study.fam | sort | uniq -c
 ```
-
-The numerical answers depend on the prepared teaching dataset.
 
 </details>
 
@@ -302,10 +296,9 @@ PLINK expects a proportion: 2% is written as `0.02`.
 <details markdown="1">
 <summary>Answer</summary>
 
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
+Run:
 
+```bash
 ./plink \
   --bfile Data/raw/study \
   --geno 0.02 \
@@ -317,12 +310,6 @@ set -euo pipefail
   --mind 0.02 \
   --make-bed \
   --out Results/02_missingness
-```
-
-Run:
-
-```bash
-bash scripts/01_missingness.sh
 ```
 
 Check:
@@ -357,7 +344,7 @@ Inspect the report:
 head Results/allele_frequency.frq
 ```
 
-For this teaching dataset, retain variants with MAF of at least 5%:
+For this dataset, retain variants with MAF of at least 5%:
 
 ```bash
 ./plink \
@@ -371,7 +358,7 @@ For this teaching dataset, retain variants with MAF of at least 5%:
 
 **EXERCISE 3 — Think about allele counts**
 
-Suppose a variant has MAF = 0.01 in 200 completely genotyped
+Suppose a variant has MAF = 0.05 in 200 completely genotyped
 diploid individuals.
 
 Approximately how many copies of the minor allele are present?
@@ -393,7 +380,7 @@ There are 400 allele copies:
 The approximate minor allele count is:
 
 ```text
-400 × 0.01 = 4
+400 × 0.05 = 20
 ```
 
 Ask whether four allele copies provide enough information for a stable
@@ -419,7 +406,7 @@ Generate a diagnostic report:
   --out Results/hwe
 ```
 
-For the classroom filtering exercise:
+For the exercise, run:
 
 ```bash
 ./plink \
@@ -432,6 +419,8 @@ For the classroom filtering exercise:
 For a recognized binary phenotype, PLINK 1.9 normally uses controls for
 this filter and excludes nonfounders unless instructed otherwise.
 
+The HWE threshold of 1×10e−6 is used to remove variants with extreme departures from Hardy–Weinberg equilibrium, which may indicate genotyping error or other technical artifacts. This stringent cutoff avoids removing variants that show modest deviation by chance in a genome-wide dataset. 
+  
 Check the phenotype coding and read the log before interpreting the
 result.
 
@@ -643,7 +632,7 @@ so do not treat the output as an infallible family classification.
 
 **EXERCISE 4 — Review a sample-exclusion decision**
 
-Choose one entry in `Data/review/review_notes.tsv`.
+Examine the `Results/relatedness.genome` file.
 
 Explain:
 
@@ -660,14 +649,16 @@ the other.
 <details markdown="1">
 <summary>Answer</summary>
 
-There is no single numerical answer.
+Most standard GWAS association tests assume that samples are approximately unrelated. Closely related individuals can inflate test statistics and bias standard errors.
 
-A good response distinguishes a diagnostic flag from an exclusion
-decision, considers multiple measurements, and documents uncertainty.
+For a related pair, one sample is usually retained based on criteria such as:
 
-For related samples, check whether the decision also resolves other
-relationships in the group, rather than considering each pair in
-isolation.
+1. Higher genotyping call rate;
+2. Phenotype importance, for example retaining a case over a control;
+3. More complete covariate information;
+4. Better sample quality;
+5. Consistency with the target ancestry group;
+6. Lower missingness or better heterozygosity profile.
 
 </details>
 
@@ -1021,7 +1012,7 @@ We will compare:
 - A dataset-specific Bonferroni threshold: `0.05 / number of tests`.
 - The conventional common-variant GWAS reference line: `5e-8`.
 
-The second is a reference convention, not a threshold derived from the number of variants in this small teaching dataset.
+The second is a reference convention, not a threshold derived from the number of variants in this dataset.
 
 ### 7.2 Manhattan and Q–Q plots
 
@@ -1160,6 +1151,10 @@ plot_gwas("Results/gwas_unadjusted")
 plot_gwas("Results/gwas_adjusted")
 ```
 
+This code defines a reusable R function, `plot_gwas()`, that reads PLINK logistic regression GWAS results, keeps only the additive test (`TEST == "ADD"`), removes invalid p-values, and produces standard GWAS summaries. It creates a Manhattan plot to show association signals across chromosomes, a Q-Q plot to assess whether the p-values follow the expected null distribution, calculates the genomic inflation factor \(\lambda_{\mathrm{GC}}\) to measure test statistic inflation, writes the top 10 SNPs by p-value, and saves a summary file containing the number of valid tests, \(\lambda_{\mathrm{GC}}\), and the Bonferroni threshold. 
+
+Running it for both `gwas_unadjusted` and `gwas_adjusted` allows comparison of the association results before and after adjustment for population structure.
+
 <div class="warning" markdown="1">
 
 **Do not silently discard failed tests**
@@ -1219,8 +1214,6 @@ Answer:
 
 <details markdown="1">
 <summary>Answer</summary>
-
-There is no fixed numerical answer.
 
 Adjustment does not have to increase every p-value, and it may have little visible effect in this teaching dataset.
 
