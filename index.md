@@ -39,10 +39,6 @@ In this practical, we will:
 5. Run an association analysis.
 6. Interpret the resulting tables and plots.
 
-The scientific background comes from Marees et al. (2018).
-The accompanying repository provides the original practical materials.
-See [References](#9-references).
-
 <div class="warning" markdown="1">
 
 ### 1.1 Learning outcomes
@@ -1249,7 +1245,6 @@ International Journal of Methods in Psychiatric Research, 27, e1608.
 - [Source](https://github.com/MareesAT/GWA_tutorial/)
 - [Source](https://cloufield.github.io/GWASTutorial/)
 - [Source](https://pbreheny.github.io/adv-gwas-tutorial/index.html)
-- [Source](https://gwaslab.org)
 
 ### Software documentation
 
