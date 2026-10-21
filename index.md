@@ -9,7 +9,7 @@ title: "Introduction to genome-wide association studies"
 
 **Suggested duration:** 2 hours
 
-**Software:** PLINK 1.9, R, and a Bash terminal
+**Software:** PLINK 1.9, R, RStudio, and a Bash terminal
 
 ## Contents
 {: .no_toc }
@@ -63,7 +63,7 @@ By the end of this practical, you should be able to:
 The classroom environment should already contain:
 
 - PLINK **1.9**, available as `plink`.
-- R and `Rscript`.
+- R and RStudio.
 - A Bash terminal.
 - A text editor.
 
@@ -254,8 +254,6 @@ The `F_MISS` column contains the fraction of missing calls.
 
 **EXERCISE 2 — Apply missingness filters**
 
-Create `scripts/01_missingness.sh`.
-
 We will use a stringent threshold for illustration, however in real-world cases, you may try multiple threshold settings.
 
 First exclude variants with more than 2% missing calls.
@@ -264,9 +262,6 @@ Then exclude samples with more than 2% missing calls.
 Complete:
 
 ```bash
-#!/usr/bin/env bash
-set -euo pipefail
-
 ./plink \
   --bfile Data/raw/study \
   --geno <<THRESHOLD>> \
@@ -758,7 +753,7 @@ MDS and principal component analysis (PCA) are related approaches to dimension r
 
 ### 5.5 Plot the dimensions and prepare covariates
 
-Create `scripts/02_structure.R` and run:
+Create `scripts/population_structure.R` and run:
 
 ```r
 mds <- read.table(
@@ -809,7 +804,7 @@ An elbow plot can help choose the number of dimensions to retain. Plot the varia
 
 In practice, the elbow plot should be used as a guide rather than a strict rule. If the elbow occurs around dimension \(k\), consider using approximately \(k\) dimensions and compare results with nearby choices, such as \(k - 1\) and \(k + 1\), to assess sensitivity.
 
-Create `scripts/03_mds_elbow.R` and run:
+Create `scripts/mds_elbow.R` and run:
 
 ```r
 mds <- read.table(
@@ -1018,7 +1013,7 @@ The second is a reference convention, not a threshold derived from the number of
 
 The following R code uses base R and does not require additional plotting packages.
 
-Create `scripts/04_plots.R` and run:
+Create `scripts/plots.R` and run:
 
 ```r
 plot_gwas <- function(prefix) {
@@ -1159,7 +1154,7 @@ Running it for both `gwas_unadjusted` and `gwas_adjusted` allows comparison of t
 
 **Do not silently discard failed tests**
 
-The script reports how many additive tests were omitted from plotting.
+The  reports how many additive tests were omitted from plotting.
 
 Investigate missing p-values, numerical zeros, and model warnings. A plot containing only valid results is not evidence that every model fitted successfully.
 
